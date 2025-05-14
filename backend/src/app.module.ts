@@ -1,28 +1,36 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigModule } from '@nestjs/config';
 import * as path from 'node:path';
+import { DataSourceOptions } from 'typeorm';
 
 import { configProvider } from './app.config.provider';
 import { FilmsController } from './films/films.controller';
 import { OrderController } from './order/order.controller';
 import { FilmsService } from './films/films.service';
 import { OrderService } from './order/order.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import {
-  Film,
-  FilmSchema,
-  FilmsRepository,
-} from './repository/films.repository';
+import { FilmsRepository } from './repository/film.repository';
+import { Film } from './films/entities/film.entity';
+import { Schedule } from './schedule/entities/schedule.entity';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(configProvider.useValue.database.url),
-    MongooseModule.forFeature([{ name: Film.name, schema: FilmSchema }]),
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
     }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: configProvider.useValue.database.host,
+      port: configProvider.useValue.database.port,
+      username: configProvider.useValue.database.username,
+      password: configProvider.useValue.database.password,
+      database: configProvider.useValue.database.database,
+      entities: [Film, Schedule],
+      synchronize: true,
+    } as DataSourceOptions),
+    TypeOrmModule.forFeature([Film, Schedule]),
     // @todo: Добавьте раздачу статических файлов из public
     ServeStaticModule.forRoot({
       serveRoot: '/content/afisha', // Базовый URL
