@@ -5,7 +5,7 @@ export const configProvider = {
   provide: 'CONFIG',
   useValue: <AppConfig>{
     database: {
-      type: 'postgres',
+      type: process.env.DATABASE_DRIVER || 'postgres',
       host: process.env.DATABASE_HOST || 'localhost',
       port: parseInt(process.env.DATABASE_PORT || '5432', 10),
       username: process.env.DATABASE_USERNAME || 'admin',

@@ -21,7 +21,7 @@ import { Schedule } from './schedule/entities/schedule.entity';
       cache: true,
     }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
+      type: configProvider.useValue.database.type,
       host: configProvider.useValue.database.host,
       port: configProvider.useValue.database.port,
       username: configProvider.useValue.database.username,
