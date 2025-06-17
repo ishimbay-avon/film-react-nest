@@ -3,7 +3,7 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
-import { FilmsRepository } from '../repository/films.repository';
+import { FilmsRepository } from '../repository/film.repository';
 import { CreateOrderDto, OrderResultDto, TicketDto } from './dto/order.dto';
 import { faker } from '@faker-js/faker';
 
@@ -18,44 +18,45 @@ export class OrderService {
     const ticketsByFilmSession = this.groupTickets(order.tickets);
 
     for (const [filmId, sessions] of Object.entries(ticketsByFilmSession)) {
-      const film = await this.filmsRepository.findById(filmId);
+      const schedules = await this.filmsRepository.findSchedulesForFilm(
+        filmId,
+        Object.keys(sessions),
+      );
 
-      if (!film) {
+      if (schedules.length === 0) {
         throw new NotFoundException(`Фильм с id ${filmId} не найден`);
       }
 
-      for (const [sessionId, tickets] of Object.entries(sessions)) {
-        const session = film.items.find((s) => s.id === sessionId);
+      for (const schedule of schedules) {
+        const tickets = sessions[schedule.id];
+        if (!tickets) continue;
 
-        if (!session) {
-          throw new NotFoundException(`Сеанс с id ${sessionId} не найден`);
-        }
+        const takenSeats = schedule.taken.split(',').filter(Boolean);
 
         // Проверяем и резервируем места
         for (const ticket of tickets) {
           const seatKey = `${ticket.row}:${ticket.seat}`;
 
-          if (session.taken.includes(seatKey)) {
+          if (takenSeats.includes(seatKey)) {
             throw new ConflictException(`Место ${seatKey} уже занято`);
           }
 
-          session.taken.push(seatKey);
+          takenSeats.push(seatKey);
           results.push({
             id: faker.string.uuid(),
             film: filmId,
-            session: sessionId,
-            daytime: session.daytime,
+            session: schedule.id,
+            daytime: schedule.daytime,
             row: ticket.row,
             seat: ticket.seat,
-            price: session.price,
+            price: schedule.price,
           });
         }
 
-        // Обновляем фильм в базе
         await this.filmsRepository.updateFilmSession(
           filmId,
-          sessionId,
-          session.taken,
+          schedule.id,
+          takenSeats,
         );
       }
     }
