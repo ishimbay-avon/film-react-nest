@@ -1,0 +1,83 @@
+services:
+  frontend:
+    build:
+      context: frontend      
+    image: 'ghcr.io/ishimbay-avon/frontend:latest'
+    environment:
+      VITE_BASE_URL: /
+      VITE_API_URL: /api/afisha
+      VITE_CDN_URL: /content/afisha      
+    volumes:
+      - frontend_build:/app/dist
+    networks:
+      - internal
+
+  backend:
+    build:
+      context: backend      
+    image: 'ghcr.io/ishimbay-avon/backend:latest'
+    environment:
+      PORT: 3000
+      DEBUG: '*'
+      DATABASE_DRIVER: 'postgres'
+      DATABASE_USERNAME: "admin"
+      DATABASE_PASSWORD: "root"
+      DATABASE_HOST: 'database'
+      DATABASE_PORT: 5432
+      DATABASE_NAME: 'films'
+
+    ports:
+      - 3000:3000
+    networks:
+      - internal
+    depends_on:
+      - database
+
+  server:
+    build:
+      context: nginx
+    image: 'ghcr.io/ishimbay-avon/server:latest'
+    ports:
+      - "80:80"
+    volumes:
+      - frontend_build:/var/www
+    networks:
+      - internal
+    depends_on:
+      - frontend
+      - backend
+
+  database:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "root"
+      POSTGRES_DB: "films"
+    volumes:
+      - db_data:/var/lib/postgresql/data      
+    ports:
+      - '5432:5432'
+    networks:
+      - internal
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "postgres@localhost.com"
+      PGADMIN_DEFAULT_PASSWORD: "postgres"
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - internal    
+
+volumes:
+  db_data:
+  pgadmin-data:
+  frontend_build:  
+
+networks:
+  internal:

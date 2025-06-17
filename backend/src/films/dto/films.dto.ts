@@ -28,6 +28,19 @@ class GetScheduleDTO {
   taken: string[];
 }
 
+export class GetFilmDTO {
+  id: string;
+  rating: number;
+  director: string;
+  tags: string[];
+  image: string;
+  cover: string;
+  title: string;
+  about: string;
+  description: string;
+  schedule: GetScheduleDTO[];
+}
+
 export class CreateFilmDto {
   @IsUUID()
   id: string;

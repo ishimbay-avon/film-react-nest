@@ -24,6 +24,35 @@ export class FilmsService {
   }
 }
 
+// import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+// import { FilmsRepository } from '../repository/film.repository';
+// import { CreateFilmDto } from './dto/films.dto';
+
+// @Injectable()
+// export class FilmsService {
+//   constructor(
+//     @Inject('FILMS_REPOSITORY')
+//     private readonly filmsRepository: FilmsRepository,
+//   ) {}
+
+//   async findOne(id: string) {
+//     const film = await this.filmsRepository.findById(id);
+
+//     if (!film) {
+//       throw new NotFoundException('Film not found');
+//     }
+//     return film;
+//   }
+
+//   async create(createFilmDto: CreateFilmDto) {
+//     return this.filmsRepository.create(createFilmDto);
+//   }
+
+//   async findAll() {
+//     return this.filmsRepository.findAll();
+//   }
+// }
+
 // import { Injectable, NotFoundException } from '@nestjs/common';
 // import { InjectRepository } from '@nestjs/typeorm';
 // import { Repository } from 'typeorm';
