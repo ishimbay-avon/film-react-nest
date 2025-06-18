@@ -1,5 +1,7 @@
 # FILM!
 
+http://domainname.students.nomorepartiessbs.ru/
+
 ## Установка
 
 ### MongoDB
