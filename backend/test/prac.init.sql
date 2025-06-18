@@ -39,4 +39,4 @@ create table public.schedules
             references public.films
 );
 
-alter table public.schedules owner to admin;;
+alter table public.schedules owner to admin;

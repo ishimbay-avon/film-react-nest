@@ -1,7 +1,5 @@
 services:
   frontend:
-    build:
-      context: frontend      
     image: 'ghcr.io/ishimbay-avon/frontend:latest'
     environment:
       VITE_BASE_URL: /
@@ -13,18 +11,16 @@ services:
       - internal
 
   backend:
-    build:
-      context: backend      
     image: 'ghcr.io/ishimbay-avon/backend:latest'
     environment:
       PORT: 3000
       DEBUG: '*'
-      DATABASE_DRIVER: ${DATABASE_DRIVER}
-      DATABASE_USERNAME: ${DATABASE_USERNAME}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_DRIVER: 'postgres'
+      DATABASE_USERNAME: "admin"
+      DATABASE_PASSWORD: "root"
       DATABASE_HOST: 'database'
       DATABASE_PORT: 5432
-      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_NAME: 'films'
 
     ports:
       - 3000:3000
@@ -34,11 +30,9 @@ services:
       - database
 
   server:
-    build:
-      context: nginx
     image: 'ghcr.io/ishimbay-avon/server:latest'
     ports:
-      - "80:80"
+      - "81:80"
     volumes:
       - frontend_build:/var/www
     networks:
@@ -50,9 +44,9 @@ services:
   database:
     image: postgres:13-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "root"
+      POSTGRES_DB: "films"
     volumes:
       - db_data:/var/lib/postgresql/data      
     ports:
@@ -65,8 +59,8 @@ services:
     container_name: pgadmin4_container
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: "postgres@localhost.com"
+      PGADMIN_DEFAULT_PASSWORD: "postgres"
     ports:
       - "8080:80"
     volumes:
